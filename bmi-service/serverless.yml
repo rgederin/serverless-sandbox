@@ -1,0 +1,22 @@
+# #
+# sls deploy
+# serverless invoke --function bmi  --data '{ "height": 1.8, "weight": 50}' --log
+
+service: bmi-service
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+
+functions:
+  bmi:
+    handler: handler.bmi
+    events:
+      - http:
+          path: bmi
+          method: post
