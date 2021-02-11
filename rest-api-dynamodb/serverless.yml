@@ -1,0 +1,79 @@
+service: rest-api-dynamodb
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  createUser:
+    handler: src/handlers.createUser
+    events:
+      - http:
+          path: user
+          method: post
+          cors: true
+
+  updateUser:
+    handler: src/handlers.updateUser
+    events:
+      - http:
+          path: user/{id}
+          method: put
+          cors: true
+
+  deleteUser:
+    handler: src/handlers.deleteUser
+    events:
+      - http:
+          path: user/{id}
+          method: delete
+          cors: true
+
+  getUser:
+    handler: src/handlers.getUser
+    events:
+      - http:
+          path: user/{id}
+          method: get
+          cors: true
+
+  getUsers:
+    handler: src/handlers.getUsers
+    events:
+      - http:
+          path: user
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    TodosDynamoDbTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
