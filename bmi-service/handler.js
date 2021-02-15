@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports.bmi = async (event, context, callback) => {
+module.exports.bmi = (event, context, callback) => {
   console.log(event);
 
   let weight, height;
