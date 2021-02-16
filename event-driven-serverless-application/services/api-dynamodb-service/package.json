@@ -1,0 +1,11 @@
+{
+  "name": "api-dynamodb-service",
+  "version": "1.0.0",
+  "description": "Service for providing REST API endpoints for manipulating data in Dynamo DB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

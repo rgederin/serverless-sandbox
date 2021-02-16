@@ -1,0 +1,11 @@
+{
+  "name": "s3-sqs-service",
+  "version": "1.0.0",
+  "description": "Service for reading JSON files from S3, parsing and pushing batches of data in SQS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ruslan Gederin",
+  "license": "ISC"
+}

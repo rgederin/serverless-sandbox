@@ -1,0 +1,11 @@
+{
+  "name": "sqs-dynamodb-service",
+  "version": "1.0.0",
+  "description": "Service for listening SQS queue and importing data in Dynamo DB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ruslan Gederin",
+  "license": "ISC"
+}
