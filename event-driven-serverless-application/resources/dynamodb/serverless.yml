@@ -1,0 +1,30 @@
+service: dynamodb-table
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  stage: dev
+  region: us-west-2
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: DynamoDbTable-${self:provider.stage}
+  Outputs:
+    DynamoDbTable:
+      Value:
+        "Ref": DynamoDbTable
+      Export:
+        Name: DynamoDbTable-${self:provider.stage}

@@ -9,6 +9,7 @@
   "author": "Ruslan Gederin",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.844.0"
+    "aws-sdk": "^2.844.0",
+    "uuid": "^8.3.2"
   }
 }

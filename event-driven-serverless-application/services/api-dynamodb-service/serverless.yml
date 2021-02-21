@@ -1,0 +1,60 @@
+service: api-dynamodb-service
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+  environment:
+    DYNAMODB_TABLE:
+      "Fn::ImportValue": "DynamoDbTable-${self:provider.stage}"
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/DynamoDbTable-${self:provider.stage}"
+
+functions:
+  createUser:
+    handler: src/handlers/createUser.main
+    events:
+      - http:
+          path: user
+          method: post
+          cors: true
+  getUsers:
+    handler: src/handlers/getUsers.main
+    events:
+      - http:
+          path: users
+          method: get
+          cors: true
+  getUser:
+    handler: src/handlers/getUser.main
+    events:
+      - http:
+          path: user/{id}
+          method: get
+          cors: true
+  deleteUser:
+    handler: src/handlers/deleteUser.main
+    events:
+      - http:
+          path: user/{id}
+          method: delete
+          cors: true
+  updateUser:
+    handler: src/handlers/updateUser.main
+    events:
+      - http:
+          path: user/{id}
+          method: put
+          cors: true
