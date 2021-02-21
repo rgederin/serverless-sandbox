@@ -21,10 +21,10 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: DynamoDbTable-${self:provider.stage}
+        TableName: vehicle-table-${self:provider.stage}
   Outputs:
     DynamoDbTable:
       Value:
         "Ref": DynamoDbTable
       Export:
-        Name: DynamoDbTable-${self:provider.stage}
+        Name: vehicle-table-${self:provider.stage}

@@ -3,7 +3,7 @@ const response = require('../utils/response');
 const dynamoDb = require('../utils/dynamoDb');
 
 module.exports.main = async event => {
-    console.log("createUser lambda event: ", event);
+    console.log("createVehicle lambda event: ", event);
 
     const dynamoDbParameters = buildDynamoDbParams(event);
     try {
@@ -22,9 +22,9 @@ const buildDynamoDbParams = event => {
         TableName: process.env.DYNAMODB_TABLE,
         Item: {
             id: uuid.v4(),
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
+            vehicle_brand: data.vehicle_brand,
+            vehicle_model: data.vehicle_model,
+            vehicle_year: data.vehicle_year,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime()
         }

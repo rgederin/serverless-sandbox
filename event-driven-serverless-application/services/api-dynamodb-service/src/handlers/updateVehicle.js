@@ -2,7 +2,7 @@ const response = require('../utils/response');
 const dynamoDb = require('../utils/dynamoDb');
 
 module.exports.main = async event => {
-    console.log("updateUser lambda event: ", event);
+    console.log("updateVehicle lambda event: ", event);
 
     const dynamoDbParameters = buildDynamoDbParams(event);
     try {
@@ -23,14 +23,13 @@ const buildDynamoDbParams = event => {
             id: event.pathParameters.id
         },
         ExpressionAttributeValues: {
-            ":email": data.email,
-            ":firstName": data.firstName,
-            ":lastName": data.lastName,
-            ":checked": data.checked,
+            ":vehicle_brand": data.vehicle_brand,
+            ":vehicle_model": data.vehicle_model,
+            ":vehicle_year": data.vehicle_year,
             ":updatedAt": new Date().getTime()
         },
         UpdateExpression:
-            "SET email = :email, firstName = :firstName, lastName = :lastName, updatedAt = :updatedAt",
+            "SET vehicle_brand = :vehicle_brand, vehicle_model = :vehicle_model, vehicle_year = :vehicle_year, updatedAt = :updatedAt",
         ReturnValues: "ALL_NEW"
     };
 };

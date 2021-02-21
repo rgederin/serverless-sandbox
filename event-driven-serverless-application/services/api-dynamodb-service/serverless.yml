@@ -9,52 +9,51 @@ provider:
   memorySize: 128
   environment:
     DYNAMODB_TABLE:
-      "Fn::ImportValue": "DynamoDbTable-${self:provider.stage}"
+      "Fn::ImportValue": "vehicle-table-${self:provider.stage}"
 
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/DynamoDbTable-${self:provider.stage}"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/vehicle-table-${self:provider.stage}"
 
 functions:
-  createUser:
-    handler: src/handlers/createUser.main
+  createVehicle:
+    handler: src/handlers/createVehicle.main
     events:
       - http:
-          path: user
+          path: vehicle
           method: post
           cors: true
-  getUsers:
-    handler: src/handlers/getUsers.main
+  getVehicles:
+    handler: src/handlers/getVehicles.main
     events:
       - http:
-          path: users
+          path: vehicles
           method: get
           cors: true
-  getUser:
-    handler: src/handlers/getUser.main
+  getVehicle:
+    handler: src/handlers/getVehicle.main
     events:
       - http:
-          path: user/{id}
+          path: vehicle/{id}
           method: get
           cors: true
-  deleteUser:
-    handler: src/handlers/deleteUser.main
+  deleteVehicle:
+    handler: src/handlers/deleteVehicle.main
     events:
       - http:
-          path: user/{id}
+          path: vehicle/{id}
           method: delete
           cors: true
-  updateUser:
-    handler: src/handlers/updateUser.main
+  updateVehicle:
+    handler: src/handlers/updateVehicle.main
     events:
       - http:
-          path: user/{id}
+          path: vehicle/{id}
           method: put
           cors: true

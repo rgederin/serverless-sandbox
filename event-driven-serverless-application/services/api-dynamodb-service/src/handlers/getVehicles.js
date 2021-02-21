@@ -2,7 +2,7 @@ const dynamoDb = require('../utils/dynamoDb');
 const response = require('../utils/response');
 
 module.exports.main = async event => {
-    console.log("getUsers lambda event: ", event);
+    console.log("getVehicle lambda event: ", event);
 
     const dynamoDbParameters = buildDynamoDbParams(event);
     try {
