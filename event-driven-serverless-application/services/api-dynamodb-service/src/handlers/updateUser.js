@@ -1,18 +1,20 @@
 const response = require('../utils/response');
-const dynamodb = require('../utils/dynamodb');
+const dynamoDb = require('../utils/dynamoDb');
 
 module.exports.main = async event => {
-    const dynamoDbParameters = buildParams(event);
+    console.log("updateUser lambda event: ", event);
 
+    const dynamoDbParameters = buildDynamoDbParams(event);
     try {
-        await dynamodb.update(dynamoDbParameters);
+        await dynamoDb.update(dynamoDbParameters);
         return response.success({ status: true });
     } catch (e) {
+        console.log("error: ", e);
         return response.failure({ status: false });
     }
 };
 
-const buildParams = event => {
+const buildDynamoDbParams = event => {
     const data = JSON.parse(event.body);
 
     return {

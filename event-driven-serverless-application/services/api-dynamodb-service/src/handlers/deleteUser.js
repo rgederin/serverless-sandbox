@@ -1,18 +1,24 @@
-const dynamodb = require('../utils/dynamodb');
+const dynamoDb = require('../utils/dynamoDb');
 const response = require('../utils/response');
 
 module.exports.main = async event => {
-    const params = {
+    console.log("deleteUser lambda event: ", event);
+
+    const dynamoDbParameters = buildDynamoDbParams(event);
+    try {
+        await dynamoDb.delete(dynamoDbParameters);
+        return response.success({ status: true });
+    } catch (e) {
+        console.log("error: ", e);
+        return response.failure({ status: false });
+    }
+};
+
+const buildDynamoDbParams = event => {
+    return {
         TableName: process.env.DYNAMODB_TABLE,
         Key: {
             id: event.pathParameters.id
         }
     };
-
-    try {
-        await dynamodb.delete(params);
-        return response.success({ status: true });
-    } catch (e) {
-        return response.failure({ status: false });
-    }
 };

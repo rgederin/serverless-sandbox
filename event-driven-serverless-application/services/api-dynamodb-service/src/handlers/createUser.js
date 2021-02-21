@@ -1,23 +1,24 @@
 const uuid = require('uuid');
 const response = require('../utils/response');
-const dynamodb = require('../utils/dynamodb');
+const dynamoDb = require('../utils/dynamoDb');
 
 module.exports.main = async event => {
-    const dynamoDbParameters = buildParams(event);
+    console.log("createUser lambda event: ", event);
 
+    const dynamoDbParameters = buildDynamoDbParams(event);
     try {
-        await dynamodb.put(dynamoDbParameters);
-        return response.success(params.Item);
+        await dynamoDb.put(dynamoDbParameters);
+        return response.success(dynamoDbParameters.Item);
     } catch (e) {
-        console.log(e);
+        console.log("error: ", e);
         return response.failure({ status: false });
     }
 };
 
-const buildParams = event => {
+const buildDynamoDbParams = event => {
     const data = JSON.parse(event.body);
 
-    return params = {
+    return {
         TableName: process.env.DYNAMODB_TABLE,
         Item: {
             id: uuid.v4(),
