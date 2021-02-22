@@ -18,7 +18,7 @@ exports.sendToSqs = async (batches, queueUrl) => {
 
                 // Build params
                 items.push({
-                    ID: uuidv4(),
+                    ID: uuid.v4(),
                     ...item
                 });
             });

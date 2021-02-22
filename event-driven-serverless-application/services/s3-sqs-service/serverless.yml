@@ -29,7 +29,7 @@ functions:
     handler: src/handlers/processS3Bucket.main
     events:
       - s3:
-        bucket: ${self:custom.bucket}
-        event: s3:ObjectCreated:*
-        rules:
-          - suffix: .json
+          bucket: ${self:custom.bucket}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .json
