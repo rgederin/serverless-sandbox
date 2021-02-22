@@ -1,0 +1,35 @@
+service: s3-sqs-service
+frameworkVersion: "2"
+
+custom:
+  bucket: ruslan-gederin-event-driven-application-s3-bucket
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+  environment:
+    QUEUE_URL:
+      "Fn::ImportValue": "vehicle-queue-${self:provider.stage}"
+    REGION: ${self:provider.region}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "s3:GetObject"
+      Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+    - Effect: Allow
+      Action:
+        - "sqs:SendMessage"
+      Resource: arn:aws:sqs:*:*:vehicle-queue-${self:provider.stage}
+
+functions:
+  processS3Bucket:
+    handler: src/handlers/processS3Bucket.main
+    events:
+      - s3:
+        bucket: ${self:custom.bucket}
+        event: s3:ObjectCreated:*
+        rules:
+          - suffix: .json

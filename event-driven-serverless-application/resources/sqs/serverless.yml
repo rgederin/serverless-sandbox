@@ -1,0 +1,20 @@
+service: sqs-queue
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  stage: dev
+  region: us-west-2
+
+resources:
+  Resources:
+    S3Queue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "vehicle-queue-${self:provider.stage}"
+  Outputs:
+    S3Queue:
+      Value:
+        "Ref": S3Queue
+      Export:
+        Name: vehicle-queue-${self:provider.stage}
