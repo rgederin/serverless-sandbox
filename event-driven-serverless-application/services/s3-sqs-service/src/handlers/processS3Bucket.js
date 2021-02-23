@@ -24,7 +24,6 @@ module.exports.main = async event => {
             }
         })
     );
-
 };
 
 const buildS3Params = record => {

@@ -1,0 +1,42 @@
+service: sqs-dynamodb-service
+frameworkVersion: "2"
+
+custom:
+  sqs_arn: arn:aws:sqs:${opt:region, self:provider.region}:530260462866:vehicle-queue-${self:provider.stage}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+
+  environment:
+    DYNAMODB_TABLE:
+      "Fn::ImportValue": "vehicle-table-${self:provider.stage}"
+    QUEUE_URL:
+      "Fn::ImportValue": "vehicle-queue-${self:provider.stage}"
+    REGION: ${self:provider.region}
+    QUEUE_ARN: arn:aws:sqs:${opt:region, self:provider.region}:*:vehicle-queue-${self:provider.stage}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/vehicle-table-${self:provider.stage}"
+    - Effect: Allow
+      Action:
+        - "sqs:*"
+      Resource: arn:aws:sqs:${opt:region, self:provider.region}:*:vehicle-queue-${self:provider.stage}
+
+functions:
+  processSqsMessage:
+    handler: src/handlers/processSqsMessage.main
+    events:
+      - sqs:
+          arn: ${self:custom.sqs_arn}
+          batchSize: 1
