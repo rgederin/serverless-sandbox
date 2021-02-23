@@ -22,11 +22,7 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/vehicle-table-${self:provider.stage}"
     - Effect: Allow
       Action:
