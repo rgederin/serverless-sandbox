@@ -10,6 +10,9 @@ provider:
   stage: dev
   region: us-west-2
   memorySize: 128
+  tracing:
+    lambda: true
+    apiGateway: true
   environment:
     QUEUE_URL:
       "Fn::ImportValue": "vehicle-queue-${self:provider.stage}"
@@ -23,6 +26,11 @@ provider:
       Action:
         - "sqs:SendMessage"
       Resource: arn:aws:sqs:*:*:vehicle-queue-${self:provider.stage}
+    - Effect: Allow
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource: "*"
 
 functions:
   processS3Bucket:

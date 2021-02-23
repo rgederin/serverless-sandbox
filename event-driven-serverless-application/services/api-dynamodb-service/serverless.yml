@@ -7,6 +7,8 @@ provider:
   stage: dev
   region: us-west-2
   memorySize: 128
+  tracing:
+    lambda: true
   environment:
     DYNAMODB_TABLE:
       "Fn::ImportValue": "vehicle-table-${self:provider.stage}"
@@ -20,6 +22,11 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/vehicle-table-${self:provider.stage}"
+    - Effect: Allow
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource: "*"
 
 functions:
   createVehicle:
