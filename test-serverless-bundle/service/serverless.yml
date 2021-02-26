@@ -1,0 +1,34 @@
+service: bundle-test-service
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  memorySize: 128
+  environment:
+    DYNAMODB_TABLE:
+      "Fn::ImportValue": "vehicle-table-${self:provider.stage}"
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/vehicle-table-${self:provider.stage}"
+
+functions:
+  hellp:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+          cors: true
+
+plugins:
+  - serverless-bundle
