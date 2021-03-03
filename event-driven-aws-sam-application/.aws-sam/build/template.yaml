@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Event driven serverless application using AWS SAM
+Transform:
+- AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    MemorySize: 128
+    Timeout: 100
+    Environment:
+      Variables:
+        DYNAMODB_TABLE:
+          Ref: VehicleSAMTable
+Resources:
+  listVehiclesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/api/list-vehicles.handler
+      Description: List vehicles from dynamo db table lambda
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+      CodeUri: listVehiclesFunction
+  addVehicleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/api/add-vehicle.handler
+      Description: Add vehicle to dynamo db table lambda
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+      CodeUri: addVehicleFunction
+  VehicleSAMTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+Outputs:
+  WebEndpoint:
+    Description: API Gateway endpoint URL for Prod stage
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
