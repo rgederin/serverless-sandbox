@@ -34,6 +34,8 @@ exports.handler = async (event) => {
     return response;
 }
 
+
+
 const buildDynamoDbParams = event => {
     const data = JSON.parse(event.body);
 

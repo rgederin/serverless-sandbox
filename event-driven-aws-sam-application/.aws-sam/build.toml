@@ -6,6 +6,6 @@ codeuri = "."
 runtime = "nodejs12.x"
 source_md5 = ""
 packagetype = "Zip"
-functions = ["listVehiclesFunction", "addVehicleFunction"]
+functions = ["listVehiclesFunction", "addVehicleFunction", "getVehicleFunction", "updateVehicleFunction", "deleteVehicleFunction", "processS3BucketFunction"]
 
 [layer_build_definitions]

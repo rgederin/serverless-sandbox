@@ -11,6 +11,8 @@ Globals:
       Variables:
         DYNAMODB_TABLE:
           Ref: VehicleSAMTable
+        QUEUE_URL:
+          Ref: VehicleSAMQueue
 Resources:
   listVehiclesFunction:
     Type: AWS::Serverless::Function
@@ -44,6 +46,81 @@ Resources:
             Path: /
             Method: POST
       CodeUri: addVehicleFunction
+  getVehicleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/api/get-vehicle.handler
+      Description: Get vehicle from dynamo db table lambda
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: GET
+      CodeUri: getVehicleFunction
+  updateVehicleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/api/update-vehicle.handler
+      Description: Update vehicle in dynamo db table lambda
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: PUT
+      CodeUri: updateVehicleFunction
+  deleteVehicleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/api/delete-vehicle.handler
+      Description: Delete vehicle in dynamo db table lambda
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: DELETE
+      CodeUri: deleteVehicleFunction
+  processS3BucketFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/s3/process-s3-bucket.handler
+      Description: Process S3 bucket lambda. Read file from S3, parse it and store
+        in SQS
+      Policies:
+      - S3ReadPolicy:
+          BucketName: rgederin-aws-sam-vehicle-bucket
+      - SQSSendMessagePolicy:
+          QueueName:
+            Fn::GetAtt:
+            - VehicleSAMQueue
+            - QueueName
+      Events:
+        S3NewObjectEvent:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: VehicleSAMBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: suffix
+                  Value: .json
+      CodeUri: processS3BucketFunction
   VehicleSAMTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
@@ -53,6 +130,14 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+  VehicleSAMQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: vehicle-aws-sam-queue
+  VehicleSAMBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: rgederin-aws-sam-vehicle-bucket
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage
