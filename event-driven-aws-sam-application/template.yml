@@ -101,7 +101,6 @@ Resources:
             BucketName: rgederin-aws-sam-vehicle-bucket
         - SQSSendMessagePolicy:
             QueueName: !GetAtt VehicleSAMQueue.QueueName
-
       Events:
         S3NewObjectEvent:
           Type: S3
@@ -113,6 +112,21 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: ".json"
+
+  processSqsMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/sqs/process-sqs-message.handler
+      Description: Process SQS message lambda. Read message from SQS and store data in DynamoDB
+      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VehicleSAMTable
+      Events:
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt VehicleSAMQueue.Arn
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   VehicleSAMTable:

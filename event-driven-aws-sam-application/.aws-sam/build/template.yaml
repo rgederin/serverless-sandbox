@@ -121,6 +121,26 @@ Resources:
                 - Name: suffix
                   Value: .json
       CodeUri: processS3BucketFunction
+  processSqsMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/sqs/process-sqs-message.handler
+      Description: Process SQS message lambda. Read message from SQS and store data
+        in DynamoDB
+      Timeout: 25
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VehicleSAMTable
+      Events:
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue:
+              Fn::GetAtt:
+              - VehicleSAMQueue
+              - Arn
+      CodeUri: processSqsMessageFunction
   VehicleSAMTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
