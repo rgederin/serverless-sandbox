@@ -1,6 +1,7 @@
 const cdk = require('@aws-cdk/core');
 const lambda = require('@aws-cdk/aws-lambda');
 const api = require('@aws-cdk/aws-apigateway');
+const dynamodb = require('@aws-cdk/aws-dynamodb');
 
 const apiDynamodbServiceHandlers = 'src/api-dynamodb-service/handlers';
 
@@ -9,11 +10,15 @@ class EventDrivenAwsCdkApplicationStack extends cdk.Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
 
-    const createVehicleLambda = this.createLambda(this, 'createVehicle', 'createVehicle.handler', apiDynamodbServiceHandlers);
-    const updateVehicleLambda = this.createLambda(this, 'updateVehicle', 'updateVehicle.handler', apiDynamodbServiceHandlers);
-    const listVehicleLambda = this.createLambda(this, 'listVehicle', 'listVehicle.handler', apiDynamodbServiceHandlers);
-    const getVehicleLambda = this.createLambda(this, 'getVehicle', 'getVehicle.handler', apiDynamodbServiceHandlers);
-    const deleteVehicleLambda = this.createLambda(this, 'deleteVehicle', 'deleteVehicle.handler', apiDynamodbServiceHandlers);
+    const vehiclesTable = new dynamodb.Table(this, 'Vehicles', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+    });
+
+    const createVehicleLambda = this.createLambda(this, 'createVehicle', 'createVehicle.handler', apiDynamodbServiceHandlers, vehiclesTable);
+    const updateVehicleLambda = this.createLambda(this, 'updateVehicle', 'updateVehicle.handler', apiDynamodbServiceHandlers, vehiclesTable);
+    const listVehiclesLambda = this.createLambda(this, 'listVehicles', 'listVehicles.handler', apiDynamodbServiceHandlers, vehiclesTable);
+    const getVehicleLambda = this.createLambda(this, 'getVehicle', 'getVehicle.handler', apiDynamodbServiceHandlers, vehiclesTable);
+    const deleteVehicleLambda = this.createLambda(this, 'deleteVehicle', 'deleteVehicle.handler', apiDynamodbServiceHandlers, vehiclesTable);
 
     const processS3Lambda = this.createLambda(this, 'processS3Bucket', 'processS3Bucket.handler', 'src/s3-sqs-service/handlers');
     const processSQSMessageLambda = this.createLambda(this, 'processSQSMessage', 'processSQSMessage.handler', 'src/sqs-dynamodb-service/handlers');
@@ -23,7 +28,7 @@ class EventDrivenAwsCdkApplicationStack extends cdk.Stack {
     const vehicles = restApi.root.addResource('vehicles');
     const vehicle = vehicles.addResource('{vehicle_id}');
 
-    const listVehiclesLambdaIntegration = new api.LambdaIntegration(listVehicleLambda);
+    const listVehiclesLambdaIntegration = new api.LambdaIntegration(listVehiclesLambda);
     const createVehicleLambdaIntegration = new api.LambdaIntegration(createVehicleLambda);
     const getVehicleLambdaIntegration = new api.LambdaIntegration(getVehicleLambda);
     const updateVehicleLambdaIntegration = new api.LambdaIntegration(updateVehicleLambda);
@@ -36,12 +41,21 @@ class EventDrivenAwsCdkApplicationStack extends cdk.Stack {
     vehicle.addMethod('DELETE', deleteVehicleLambdaIntegration);
   };
 
-  createLambda = (scope, id, handler, src) => {
+  createLambda = (scope, id, handler, src, table) => {
     const lambdaFunction = new lambda.Function(scope, id, {
       runtime: lambda.Runtime.NODEJS_12_X,
       code: lambda.Code.fromAsset(src),
-      handler: handler
+      handler: handler,
+      environment: {
+        DYNAMODB_TABLE: table ? table.tableName : ''
+      }
     });
+
+    if (table) {
+      // Give our Lambda permissions to read and write data from the passed in DynamoDB table
+      table.grantReadWriteData(lambdaFunction);
+    }
+
 
     return lambdaFunction;
   }
