@@ -5,6 +5,7 @@ const dynamodb = require('@aws-cdk/aws-dynamodb');
 const eventSource = require('@aws-cdk/aws-lambda-event-sources');
 const s3 = require('@aws-cdk/aws-s3');
 const sqs = require('@aws-cdk/aws-sqs');
+const { SqsEventSource } = require('@aws-cdk/aws-lambda-event-sources');
 
 const S3EventSource = eventSource.S3EventSource;
 const apiDynamodbServiceHandlers = 'src/api-dynamodb-service/handlers';
@@ -29,7 +30,7 @@ class EventDrivenAwsCdkApplicationStack extends cdk.Stack {
     const deleteVehicleLambda = this.createLambda(this, 'deleteVehicle', 'deleteVehicle.handler', apiDynamodbServiceHandlers, vehiclesTable);
 
     const processS3Lambda = this.createLambda(this, 'processS3Bucket', 'processS3Bucket.handler', 'src/s3-sqs-service/handlers', undefined, vehicleQueue);
-    const processSQSMessageLambda = this.createLambda(this, 'processSQSMessage', 'processSQSMessage.handler', 'src/sqs-dynamodb-service/handlers');
+    const processSQSMessageLambda = this.createLambda(this, 'processSQSMessage', 'processSQSMessage.handler', 'src/sqs-dynamodb-service/handlers', vehiclesTable);
 
     const restApi = new api.RestApi(this, 'vehicles-api');
 
@@ -51,6 +52,8 @@ class EventDrivenAwsCdkApplicationStack extends cdk.Stack {
     processS3Lambda.addEventSource(new S3EventSource(bucket, {
       events: [s3.EventType.OBJECT_CREATED]
     }));
+
+    processSQSMessageLambda.addEventSource(new SqsEventSource(vehicleQueue));
 
     bucket.grantReadWrite(processS3Lambda);
   };

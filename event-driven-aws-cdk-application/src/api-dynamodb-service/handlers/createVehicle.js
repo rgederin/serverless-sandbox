@@ -1,8 +1,6 @@
 'use strict';
 
-// Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
-// const { v4: uuidv4 } = require('uuid');
 const docClient = new dynamodb.DocumentClient();
 
 // Get the DynamoDB table name from environment variables
