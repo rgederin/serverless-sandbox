@@ -63,7 +63,7 @@ functions:
 
 resources:
   Resources:
-    TodosDynamoDbTable:
+    LohikaDynamoDbTable:
       Type: "AWS::DynamoDB::Table"
       DeletionPolicy: Retain
       Properties:

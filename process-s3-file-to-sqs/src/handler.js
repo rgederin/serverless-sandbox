@@ -20,7 +20,7 @@ module.exports.s3processor = async (event) => {
           Key: record.s3.object.key
         }).promise();
 
-        // Upload JSON to DynamoDB
+
         const jsonData = JSON.parse(originalText.Body.toString('utf-8'));
         const batches = splitToBatches(jsonData);
 
